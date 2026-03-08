@@ -16,6 +16,8 @@ Instead of traditional flags, players can mark cells using different indicators 
 - Safe cell revealing
 - Automatic expansion of empty areas
 
+---
+
 ### ⚠️ Cell Marking System
 Players can mark suspicious cells using two types of indicators:
 
@@ -24,6 +26,8 @@ Players can mark suspicious cells using two types of indicators:
 
 These markings help players track potential dangers and avoid accidental reveals.
 
+---
+
 ### 💣 Mine Detection
 Each revealed cell displays a number representing the number of mines in the **8 surrounding cells**:
 - Horizontal
@@ -31,6 +35,36 @@ Each revealed cell displays a number representing the number of mines in the **8
 - Diagonal
 
 This information allows the player to deduce where mines are located.
+
+---
+
+### 🏆 High Scores Storage
+
+The game automatically saves player records in a file named:
+minesfinder.recordes
+This file is stored in the user's home directory, ensuring that records persist between game sessions and remain independent of the application installation location.
+
+#### 📂 Default Locations
+
+Depending on the operating system, the file will typically be created in:
+
+Windows
+C:\Users\<username>\minesfinder.recordes
+
+Linux
+/home/<username>/minesfinder.recordes
+
+macOS
+/Users/<username>/minesfinder.recordes
+
+#### ⚙️ How It Works
+
+When the game starts, it checks whether the records file already exists:
+If the file exists, the saved records are loaded.
+If the file does not exist, a new one is automatically created.
+This mechanism allows the game to maintain a persistent high score table across multiple sessions.
+
+---
 
 ### 🎮 Game States
 The game progresses through different states:
@@ -113,7 +147,7 @@ You can run the project directly from IntelliJ IDEA or execute the generated .ja
 
 ---
 
-# Educational Purpose 🎓
+## Educational Purpose 🎓
 
 This project was developed as a programming exercise to practice:
 Object-oriented programming
@@ -124,7 +158,7 @@ GUI development in Java
 
 ---
 
-# Possible Future Improvements 🚀
+## Possible Future Improvements 🚀
 
 Difficulty levels (easy | medium | hard)
 Timer and scoring system
