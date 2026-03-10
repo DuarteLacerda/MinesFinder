@@ -1,5 +1,8 @@
 # MinesFinder 💣🔍
 
+**Mar 2026**
+*University Degree group project – 2nd year, 2nd semester*
+
 MinesFinder is a grid-based puzzle game inspired by the classic **Minesweeper**.  
 The objective is to reveal all safe cells while avoiding hidden mines by using logical deduction and numerical hints.
 
