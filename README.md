@@ -1,12 +1,12 @@
 # MinesFinder 💣🔍
 
-**Mar 2026**
-*University Degree group project – 2nd year, 2nd semester*
+**March 2026**  
+*University Degree Group Project – 2nd Year, 2nd Semester*
 
 MinesFinder is a grid-based puzzle game inspired by the classic **Minesweeper**.  
-The objective is to reveal all safe cells while avoiding hidden mines by using logical deduction and numerical hints.
+The goal is to reveal all safe cells while avoiding hidden mines using logical deduction and numerical hints.
 
-Instead of traditional flags, players can mark cells using different indicators to help track possible mine locations.
+Instead of traditional flags, players can mark cells using different indicators to track potential mine locations.
 
 ---
 
@@ -19,63 +19,44 @@ Instead of traditional flags, players can mark cells using different indicators 
 - Safe cell revealing
 - Automatic expansion of empty areas
 
----
-
 ### ⚠️ Cell Marking System
-Players can mark suspicious cells using two types of indicators:
+- **Red `!`** – High probability the cell contains a mine
+- **Yellow `?`** – Uncertain cell that may contain a mine
 
-- **Red `!`** – High probability that the cell contains a mine  
-- **Yellow `?`** – Uncertain cell that may contain a mine  
-
-These markings help players track potential dangers and avoid accidental reveals.
-
----
+These markers help players track potential dangers and avoid accidental reveals.
 
 ### 💣 Mine Detection
-Each revealed cell displays a number representing the number of mines in the **8 surrounding cells**:
-- Horizontal
-- Vertical
-- Diagonal
-
-This information allows the player to deduce where mines are located.
-
----
+Each revealed cell displays the number of mines in the **8 surrounding cells** (horizontal, vertical, and diagonal), allowing players to deduce where mines are located.
 
 ### 🏆 High Scores Storage
-
-The game automatically saves player records in a file named:
+Player records are automatically saved in a file:
+```
 minesfinder.recordes
-This file is stored in the user's home directory, ensuring that records persist between game sessions and remain independent of the application installation location.
+```
 
-#### 📂 Default Locations
 
-Depending on the operating system, the file will typically be created in:
+Located in the user’s home directory, ensuring persistence across game sessions.
 
-Windows
-C:\Users\<username>\minesfinder.recordes
+**Default locations:**
 
-Linux
-/home/<username>/minesfinder.recordes
+| OS       | Path |
+|----------|------|
+| Windows  | `C:\Users\<username>\minesfinder.recordes` |
+| Linux    | `/home/<username>/minesfinder.recordes` |
+| macOS    | `/Users/<username>/minesfinder.recordes` |
 
-macOS
-/Users/<username>/minesfinder.recordes
-
-#### ⚙️ How It Works
-
-When the game starts, it checks whether the records file already exists:
-If the file exists, the saved records are loaded.
-If the file does not exist, a new one is automatically created.
-This mechanism allows the game to maintain a persistent high score table across multiple sessions.
+**How it works:**
+- On startup, the game checks if the file exists.
+- If it exists, saved records are loaded.
+- If it does not exist, a new file is automatically created.
 
 ---
 
 ### 🎮 Game States
-The game progresses through different states:
-
-- **Start** – A new board is generated  
-- **Playing** – The player reveals and marks cells  
-- **Win** – All safe cells have been revealed  
-- **Lose** – A mine is revealed  
+- **Start** – New board generated
+- **Playing** – Player reveals and marks cells
+- **Win** – All safe cells revealed
+- **Lose** – A mine was revealed
 
 ---
 
@@ -83,8 +64,8 @@ The game progresses through different states:
 
 1. A board is generated with a predefined number of mines.
 2. The player selects a cell to reveal.
-3. If the cell contains a mine → the game ends.
-4. If the cell is safe → a number appears showing nearby mines.
+3. If the cell contains a mine → game ends.
+4. If the cell is safe → a number shows nearby mines.
 5. If the cell has **0 adjacent mines**, neighboring cells are automatically revealed.
 6. The player wins when all non-mine cells are revealed.
 
@@ -92,42 +73,64 @@ The game progresses through different states:
 
 ## Controls 🕹️
 
-Typical player actions:
+- **Reveal Cell:** Left mouse click
+- **Mark Cell:** Right mouse click (cycle through markers):
+  - `!` → suspected mine
+  - `?` → uncertain
 
-- **Reveal Cell** – Opens the selected cell (**Mouse 1**)  
-- **Mark Cell** – Cycles through markers (**Mouse 2**):
-  - `!` → suspected mine  
-  - `?` → uncertain  
+- **Solver (Logical Step):** Press `S` to automatically make safe moves
 
 ---
 
 ## Project Structure 📂
-
 ```
 MinesFinder/
 │
-├── src/
-│ ├── main/
-│ │ ├── java/
-│ │ │ └── pt.ipleiria.estg.dei.ei.esoft/
-│ │ │ ├── BotaoCampoMinado.java
-│ │ │ ├── CampoMinado.java
-│ │ │ ├── TabelaRecordes.java
-│ │ │ ├── TabelaRecordesListener.java
-│ │ │
-│ │ │ ├── JanelaDeJogo/
-│ │ │ │ ├── JanelaDeJogo.java
-│ │ │ │ └── JanelaDeJogo.form
-│ │ │
-│ │ │ └── MinesFinder/
-│ │ │ ├── MinesFinder.java
-│ │ │ └── MinesFinder.form
-│ │ │
-│ │ └── resources/
+├── src/main/java/pt.ipleiria.estg.dei.ei.esoft/
+│ ├── BotaoCampoMinado.java
+│ ├── CampoMinado.java
+│ ├── TabelaRecordes.java
+│ ├── TabelaRecordesListener.java
+│ ├── JanelaDeJogo/
+│ │ ├── JanelaDeJogo.java
+│ │ └── JanelaDeJogo.form
+│ └── MinesFinder/
+│ ├── MinesFinder.java
+│ └── MinesFinder.form
 │
+├── src/main/resources/
 ├── pom.xml
 └── README.md
 ```
+---
+
+## Module Interaction Diagram 🗂️
+```
++-----------------+
+|   MinesFinder   |  <-- main menu / difficulty selection
++-----------------+
+|        |        \
+|        |         \
+v        v          v
+|        |        /
+|        |       /
+|        |      /
++----------------+ +----------------+ +----------------+
+| JanelaDeJogo | | TabelaRecordes | | SolverCampoMinado |
+| (game window) |<->| (high scores) |<->| (logic helper) |
++----------------+ +----------------+ +----------------+
+|
+v
++----------------+
+| CampoMinado | <-- game engine / board state
++----------------+
+```
+**Legend:**
+- `MinesFinder` → launches `JanelaDeJogo` with selected difficulty  
+- `JanelaDeJogo` → GUI + player interaction  
+- `CampoMinado` → board logic, mine placement, game rules  
+- `SolverCampoMinado` → optional auto-play logic for safe moves  
+- `TabelaRecordes` → stores and updates high scores
 
 ---
 
