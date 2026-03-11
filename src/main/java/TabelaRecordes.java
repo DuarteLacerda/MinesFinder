@@ -17,7 +17,7 @@ public class TabelaRecordes implements Serializable {
         listeners = new ArrayList<>();
     }
 
-    public void JanelaDeJogo(CampoMinado campo, TabelaRecordes tabela) {
+    public void JanelaDeJogo(CampoMinado campo) {
         this.campoMinado = campo;
     }
 
@@ -27,10 +27,6 @@ public class TabelaRecordes implements Serializable {
 
     public int getTempo() {
         return tempo;
-    }
-
-    public TabelaRecordes getRecorde() {
-        return recordes;
     }
 
     public void setRecorde(String nome, long tempo) {

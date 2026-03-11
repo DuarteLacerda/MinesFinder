@@ -4,8 +4,8 @@ public class CampoMinado {
     private boolean[][] minas;
     private int[][] estado;
 
-    private int nrLinhas; // ou largura
-    private int nrColunas; // ou altura
+    private int nrLinhas;
+    private int nrColunas;
     private int nrMinas;
 
     public static final int VAZIO = 0;
@@ -16,30 +16,34 @@ public class CampoMinado {
     public static final int REBENTADO = 12;
 
     private boolean primeiraJogada;
-    private boolean jogoterminado;
+    private boolean jogoTerminado;
     private boolean jogadorDerrotado;
 
     private long instanteInicioJogo;
     private long duracaoJogo;
 
+    private int casasSegurasRestantes;
+
+    private Random random = new Random();
+
     public CampoMinado(int nrLinhas, int nrColunas, int nrMinas) {
         this.nrLinhas = nrLinhas;
         this.nrColunas = nrColunas;
         this.nrMinas = nrMinas;
-        this.minas = new boolean[nrLinhas][nrColunas]; // Valores começam a false
-        this.estado = new int[nrLinhas][nrColunas]; // Valores começam a 0 (VAZIO)
+        this.minas = new boolean[nrLinhas][nrColunas];
+        this.estado = new int[nrLinhas][nrColunas];
 
-        // Regra 1
         for (var x = 0; x < nrLinhas; ++x) {
             for (var y = 0; y < nrColunas; ++y) {
                 estado[x][y] = TAPADO;
             }
         }
 
-        // Regra 3
-        primeiraJogada = true;
-        jogoterminado = false;
-        jogadorDerrotado = false;
+        this.primeiraJogada = true;
+        this.jogoTerminado = false;
+        this.jogadorDerrotado = false;
+
+        this.casasSegurasRestantes = nrLinhas * nrColunas - nrMinas;
     }
 
     public int getNrLinhas() {
@@ -58,38 +62,20 @@ public class CampoMinado {
         return minas[x][y];
     }
 
-    // Regra 2
     public void revelarQuadricula(int x, int y) {
-        if (x < 0 || x >= nrLinhas || y < 0 || y >= nrColunas) {
-            return;
-        }
-
-        if (jogoterminado || estado[x][y] != TAPADO) {
-            return; // Já foi revelada
-        }
+        if (x < 0 || x >= nrLinhas || y < 0 || y >= nrColunas) return;
+        if (jogoTerminado || estado[x][y] != TAPADO) return;
 
         if (primeiraJogada) {
             primeiraJogada = false;
             colocarMinas(x, y);
-
             instanteInicioJogo = System.currentTimeMillis();
         }
 
         if (hasMina(x, y)) {
             estado[x][y] = REBENTADO;
-            for (var i = 0; i < nrLinhas; ++i) {
-                for (var j = 0; j < nrColunas; ++j) {
-                    if (hasMina(i, j)) {
-                        estado[i][j] = REBENTADO;
-                    } else if (estado[i][j] == TAPADO || estado[i][j] == DUVIDA || estado[i][j] == MARCADO) {
-                        estado[i][j] = VAZIO;
-                    } else {
-                        revelarQuadriculasVizinhas(i, j);
-                    }
-                }
-            }
-
-            jogoterminado = true;
+            revelarTabuleiro();
+            jogoTerminado = true;
             jogadorDerrotado = true;
             duracaoJogo = System.currentTimeMillis() - instanteInicioJogo;
         } else {
@@ -97,69 +83,68 @@ public class CampoMinado {
 
             if (minasVizinhas == 0) {
                 estado[x][y] = VAZIO;
+                casasSegurasRestantes--;
                 revelarQuadriculasVizinhas(x, y);
             } else {
                 estado[x][y] = minasVizinhas;
+                casasSegurasRestantes--;
             }
         }
+
         if (!jogadorDerrotado && isVitoria()) {
-            jogoterminado = true;
-
-            for (var i = 0; i < nrLinhas; ++i) {
-                for (var j = 0; j < nrColunas; ++j) {
-                    if (hasMina(i, j)) {
-                        estado[i][j] = REBENTADO;
-                    } else if (estado[i][j] == TAPADO || estado[i][j] == DUVIDA || estado[i][j] == MARCADO) {
-                        estado[i][j] = VAZIO;
-                    }
-                }
-            }
-
+            jogoTerminado = true;
+            revelarTabuleiro();
             duracaoJogo = System.currentTimeMillis() - instanteInicioJogo;
         }
     }
 
-    // Regra 3
-    private void colocarMinas(int exceptoX, int exceptoY) {
-        var aleatorio = new Random();
-        var x = 0;
-        var y = 0;
+    private void revelarTabuleiro() {
+        for (int i = 0; i < nrLinhas; i++) {
+            for (int j = 0; j < nrColunas; j++) {
+                if (hasMina(i, j)) {
+                    estado[i][j] = REBENTADO;
+                } else {
+                    int minas = contarMinasVizinhas(i, j);
+                    estado[i][j] = (minas == 0) ? VAZIO : minas;
+                }
+            }
+        }
+    }
 
-        for (var i = 0; i < nrMinas; ++i) {
+    private void colocarMinas(int exceptoX, int exceptoY) {
+        for (int i = 0; i < nrMinas; i++) {
+            int x, y;
             do {
-                x = aleatorio.nextInt(nrLinhas);
-                y = aleatorio.nextInt(nrColunas);
+                x = random.nextInt(nrLinhas);
+                y = random.nextInt(nrColunas);
             } while (hasMina(x, y) || (x == exceptoX && y == exceptoY));
             minas[x][y] = true;
         }
     }
 
-    // Regra 4
     public boolean isJogoTerminado() {
-        return jogoterminado;
+        return jogoTerminado;
     }
 
     public boolean isJogadorDerrotado() {
         return jogadorDerrotado;
     }
 
-    // Regra 5
     private int contarMinasVizinhas(int x, int y) {
-        var numMinasVizinhas = 0;
-        for (var i = Math.max(0, x - 1); i < Math.min(nrLinhas, x + 2); ++i) {
-            for (var j = Math.max(0, y - 1); j < Math.min(nrColunas, y + 2); ++j) {
+        int numMinas = 0;
+        for (int i = Math.max(0, x - 1); i < Math.min(nrLinhas, x + 2); ++i) {
+            for (int j = Math.max(0, y - 1); j < Math.min(nrColunas, y + 2); ++j) {
                 if (!(i == x && j == y) && hasMina(i, j)) {
-                    ++numMinasVizinhas;
+                    numMinas++;
                 }
             }
         }
-        return numMinasVizinhas;
+        return numMinas;
     }
 
-    // Regra 6
-    public void revelarQuadriculasVizinhas(int x, int y) {
-        for (var i = Math.max(0, x - 1); i < Math.min(nrLinhas, x + 2); ++i) {
-            for (var j = Math.max(0, y - 1); j < Math.min(nrColunas, y + 2); ++j) {
+    private void revelarQuadriculasVizinhas(int x, int y) {
+        for (int i = Math.max(0, x - 1); i < Math.min(nrLinhas, x + 2); ++i) {
+            for (int j = Math.max(0, y - 1); j < Math.min(nrColunas, y + 2); ++j) {
                 if (estado[i][j] == TAPADO) {
                     revelarQuadricula(i, j);
                 }
@@ -167,48 +152,30 @@ public class CampoMinado {
         }
     }
 
-    // Regra 7
     public boolean isVitoria() {
-        for (var x = 0; x < nrLinhas; ++x) {
-            for (var y = 0; y < nrColunas; ++y) {
-                if (!hasMina(x, y) && estado[x][y] >= TAPADO) {
-                    return false;
-                }
-            }
-        }
-        return true;
+        return casasSegurasRestantes == 0;
     }
 
-    // Regra 8
     public void marcarComoTendoMina(int x, int y) {
         if (estado[x][y] == DUVIDA || estado[x][y] == TAPADO) {
             estado[x][y] = MARCADO;
         }
     }
 
-    // Regra 9
     public void marcarComoSuspeita(int x, int y) {
         if (estado[x][y] == MARCADO || estado[x][y] == TAPADO) {
             estado[x][y] = DUVIDA;
         }
     }
 
-    // Regra 10
     public void desmarcarQuadricula(int x, int y) {
         if (estado[x][y] == MARCADO || estado[x][y] == DUVIDA) {
             estado[x][y] = TAPADO;
         }
     }
 
-    // Regra 11
     public long getDuracaoJogo() {
-        if (primeiraJogada) {
-            return 0;
-        }
-        if (!jogoterminado) {
-            return System.currentTimeMillis() - instanteInicioJogo;
-        }
-
-        return duracaoJogo;
+        if (primeiraJogada) return 0;
+        return jogoTerminado ? duracaoJogo : System.currentTimeMillis() - instanteInicioJogo;
     }
 }
