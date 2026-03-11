@@ -149,7 +149,7 @@ v
 This project uses **Maven**.
 
 Compile the project:
-You can run the project directly from IntelliJ IDEA or execute the generated .jar file located in the target directory.
+You can run the project directly from IntelliJ IDEA.
 
 ---
 
@@ -164,21 +164,12 @@ GUI development in Java
 
 ---
 
-## Possible Future Improvements 🚀
+## 👥 Authors
 
-Difficulty levels (easy | medium | hard)
-Timer and scoring system
-Leaderboard
-Custom board sizes
-Improved UI/UX
+* Duarte Lacerda
 
 ---
 
 ## License 📄
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
----
-
-**Version:** 1.0  
-**Developed by:** Duarte Lacerda
